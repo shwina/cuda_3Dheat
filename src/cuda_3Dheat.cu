@@ -17,10 +17,10 @@ int main()
     float   dx = L_x/N_x,
             dy = L_y/N_y,
             dz = L_z/N_z,
-            alpha = 0.1, 
+            alpha = 1, 
             dt = 1;
 
-    int     nsteps = 10;
+    int     nsteps = 100;
 
 
     float *temp1_h, *temp1_d, *temp2_d, *temp_tmp;
@@ -46,12 +46,21 @@ int main()
     
     // Compute on device
     for (int i=0; i<nsteps; i++){
-        temperature_update<<<blockDim, gridDim>>>(temp1_d, temp2_d, alpha,
-                                                    dt, N_x, N_y, N_z,
-                                                    dx, dy, dz);
+        temperature_update16x16<<<dimGrid, dimBlock>>>(temp1_d, temp2_d, alpha,
+                                                        dt, N_x, N_y, N_z,
+                                                        dx, dy, dz);
+        cudaThreadSynchronize();
+        cudaError_t error = cudaGetLastError();
+        if (error != cudaSuccess)
+        {
+                // print the CUDA error message and exit
+                printf("CUDA error: %s\n", cudaGetErrorString(error));
+                exit(-1);
+        }
         temp_tmp = temp1_d;
         temp1_d  = temp2_d;
         temp2_d  = temp_tmp;
+
     }
 
     // Copy from device to host
@@ -59,6 +68,7 @@ int main()
     cudaMemcpy((void*) temp1_h, (void*) temp1_d, ary_size,
                 cudaMemcpyDeviceToHost);
 
+    printf("%f\n", temp1_h[34342]);
     // Write to file
 
     return 0;

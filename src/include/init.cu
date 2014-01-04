@@ -14,12 +14,12 @@ void init_temp(float *M, int N_x, int N_y, int N_z){
                     M[i3d] = 10.0;
                 }
 
-                if (i == N_x-1 || j == N_y-1 || j == N_z - 1){
+                else if (i == (N_x-1) || j == (N_y-1) || k == (N_z - 1)){
                     M[i3d] = 10.0;
                 }
 
                 else{
-                    M[i3d] = 0.0;
+                    M[i3d] = 20.0;
                 }
         }
     }
