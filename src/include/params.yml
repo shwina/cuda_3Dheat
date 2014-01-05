@@ -1,0 +1,12 @@
+grid_params: 
+  N_x: 64
+  N_y: 64
+  N_z: 32
+  L_x: 64
+  L_y: 64
+  L_z: 64
+
+sim_params:
+  alpha : 0.1
+  dt    : 0.1
+  nsteps: 500
