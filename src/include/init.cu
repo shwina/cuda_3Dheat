@@ -25,5 +25,3 @@ void init_temp(float *M, int N_x, int N_y, int N_z){
     }
 }
 }
-
-

@@ -29,47 +29,58 @@ int ty = threadIdx.y + 1;
 
 int stride = N_x*N_y;
 int i2d = iy*N_x + ix;
-bool compute_if = ix > 0 && ix < N_x-1 && iy > 0 && iy < N_y-1;
+int o2d = 0;
+bool compute_if = ix > 0 && ix < (N_x-1) && iy > 0 && iy < (N_y-1);
 
+
+float behind;
+float current = temp1_d[i2d]; o2d = i2d; i2d += stride;
+float infront = temp1_d[i2d]; i2d += stride;
 
 for(int i=1; i<N_z-1; i++){
 
-    i2d += stride;
     // These go in registers:
-    float behind = temp1_d[i2d-stride];
-    float current= temp1_d[i2d];
-    float infront= temp1_d[i2d+stride];
+    behind = current;
+    current= infront;
+    infront= temp1_d[i2d];
+
+    i2d += stride;
+    o2d += stride;
+    __syncthreads();
 
     // Shared memory
-    slice[threadIdx.y+1][threadIdx.x+1] = temp1_d[i2d];
 
     if (compute_if){
-         if(threadIdx.x == 0){ // Halo left
-            slice[ty][0]     =   temp1_d[i2d - 1];
+        if(threadIdx.x == 0){ // Halo left
+            slice[ty][tx-1]     =   temp1_d[o2d - 1];
         }
 
         if(threadIdx.x == BDIMX-1){ // Halo right
-            slice[ty][BDIMX+1] = temp1_d[i2d + 1];
+            slice[ty][tx+1]     =   temp1_d[o2d + 1];
         }
 
         if(threadIdx.y == 0){ // Halo bottom
-            slice[0][tx]     =   temp1_d[i2d - BDIMX];
+            slice[ty-1][tx]     =   temp1_d[o2d - N_x];
         }
 
         if(threadIdx.y == BDIMY-1){ // Halo top
-            slice[BDIMY+1][tx] = temp1_d[i2d + BDIMX];
+            slice[ty+1][tx]     =   temp1_d[o2d + N_x];
         }
     }
 
     __syncthreads();
 
+    slice[ty][tx] = current;
+
+    __syncthreads();
+
     if (compute_if){
         
-        temp2_d[i2d]  = current + (alpha*dt)*(
-                        (slice[ty-1][tx] - 2*slice[ty][tx]
-                        +slice[ty+1][tx])/(dx*dx) +
+        temp2_d[o2d]  = current + (alpha*dt)*(
                         (slice[ty][tx-1] - 2*slice[ty][tx]
-                        +slice[ty][tx+1])/(dy*dy) +
+                        +slice[ty][tx+1])/(dx*dx) +
+                        (slice[ty-1][tx] - 2*slice[ty][tx]
+                        +slice[ty+1][tx])/(dy*dy) +
                         (behind - 2*current + infront)/(dz*dz));
 
     }

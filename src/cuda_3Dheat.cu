@@ -2,12 +2,13 @@
 # include <time.h>
 # include <init.cu>
 # include <3D_heat_kernel.cu>
+# include <printmatrix.hpp>
 
 int main()
 {
 
-    float   L_x = 64,
-            L_y = 64,
+    float   L_x = 16,
+            L_y = 16,
             L_z = 32;
 
     int     N_x = 64,
@@ -17,10 +18,10 @@ int main()
     float   dx = L_x/N_x,
             dy = L_y/N_y,
             dz = L_z/N_z,
-            alpha = 1, 
-            dt = 1;
+            alpha = 0.1, 
+            dt = 0.1;
 
-    int     nsteps = 100;
+    int     nsteps = 500;
 
 
     float *temp1_h, *temp1_d, *temp2_d, *temp_tmp;
@@ -65,11 +66,10 @@ int main()
 
     // Copy from device to host
     cudaThreadSynchronize();
-    cudaMemcpy((void*) temp1_h, (void*) temp1_d, ary_size,
+    cudaMemcpy((void*) temp1_h, (void*) temp2_d, ary_size,
                 cudaMemcpyDeviceToHost);
 
-    printf("%f\n", temp1_h[34342]);
-    // Write to file
+    write_to_file(temp1_h, N_x*N_y*N_z,"output.dat");
 
     return 0;
 
