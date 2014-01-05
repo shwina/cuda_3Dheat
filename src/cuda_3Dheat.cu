@@ -3,6 +3,8 @@
 # include <init.cu>
 # include <3D_heat_kernel.cu>
 # include <printmatrix.hpp>
+# include <sys/time.h>
+
 
 int main()
 {
@@ -21,7 +23,7 @@ int main()
             alpha = 0.1, 
             dt = 0.1;
 
-    int     nsteps = 500;
+    int     nsteps = 100;
 
 
     float *temp1_h, *temp1_d, *temp2_d, *temp_tmp;
@@ -46,6 +48,11 @@ int main()
     dim3 dimGrid(N_x/16, N_y/16, 1);
     
     // Compute on device
+    
+    struct timeval t1, t2;
+    double elapsedtime;
+
+    timeval(&t1, NULL);
     for (int i=0; i<nsteps; i++){
         temperature_update16x16<<<dimGrid, dimBlock>>>(temp1_d, temp2_d, alpha,
                                                         dt, N_x, N_y, N_z,
@@ -63,6 +70,9 @@ int main()
         temp2_d  = temp_tmp;
 
     }
+    timeval(&t2, NULL);
+    elapsedtime = (t2.tv_sec - t1.tv_sec);
+    printf("Temperature update loop took: %f\n seconds", elapsedtime);
 
     // Copy from device to host
     cudaThreadSynchronize();
