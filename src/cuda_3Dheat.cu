@@ -4,28 +4,10 @@
 # include <3D_heat_kernel.cu>
 # include <printmatrix.hpp>
 # include <sys/time.h>
-
+# include <read_params.hpp>
 
 int main()
 {
-
-    float   L_x = 16,
-            L_y = 16,
-            L_z = 32;
-
-    int     N_x = 64,
-            N_y = 64,
-            N_z = 32;
-
-    float   dx = L_x/N_x,
-            dy = L_y/N_y,
-            dz = L_z/N_z,
-            alpha = 0.1, 
-            dt = 0.1;
-
-    int     nsteps = 100;
-
-
     float *temp1_h, *temp1_d, *temp2_d, *temp_tmp;
 
     // Allocate memory and intialise temperatures in host    
@@ -52,7 +34,7 @@ int main()
     struct timeval t1, t2;
     double elapsedtime;
 
-    timeval(&t1, NULL);
+    gettimeofday(&t1, NULL);
     for (int i=0; i<nsteps; i++){
         temperature_update16x16<<<dimGrid, dimBlock>>>(temp1_d, temp2_d, alpha,
                                                         dt, N_x, N_y, N_z,
@@ -70,7 +52,7 @@ int main()
         temp2_d  = temp_tmp;
 
     }
-    timeval(&t2, NULL);
+    gettimeofday(&t2, NULL);
     elapsedtime = (t2.tv_sec - t1.tv_sec);
     printf("Temperature update loop took: %f\n seconds", elapsedtime);
 
