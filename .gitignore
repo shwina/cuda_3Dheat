@@ -1,0 +1,8 @@
+
+
+*.dat
+*.o
+*.bin
+*.lyx
+*.html
+doc/*
