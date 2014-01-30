@@ -10,7 +10,7 @@ int main()
 {
     // Read grid and simulation parameters:
 
-    YAML::Node doc = YAML::LoadFile("include/params.yml");
+    YAML::Node doc = YAML::LoadFile("../src/include/params.yml");
     Grid g = doc["grid_params"].as<Grid>();
     Sim s  = doc["sim_params"].as<Sim>();
 

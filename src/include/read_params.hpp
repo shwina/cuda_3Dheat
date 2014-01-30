@@ -35,9 +35,9 @@ namespace YAML
             g.N_x = node["N_x"].as<int>();
             g.N_y = node["N_y"].as<int>();
             g.N_z = node["N_z"].as<int>();
-            g.L_x = node["N_x"].as<float>();
-            g.L_y = node["N_y"].as<float>();
-            g.L_z = node["N_z"].as<float>();
+            g.L_x = node["L_x"].as<float>();
+            g.L_y = node["L_y"].as<float>();
+            g.L_z = node["L_z"].as<float>();
             return true;
         }
     };
